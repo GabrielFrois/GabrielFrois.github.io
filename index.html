@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capydev Scrum</title>
+  <link rel="stylesheet" href="./src/styles/base.css">
+  <link rel="stylesheet" href="./src/styles/header.css">
+  <link rel="stylesheet" href="./src/styles/login-signup.css">
+  <link rel="stylesheet" href="./src/styles/profile.css">
+  <link rel="stylesheet" href="./src/styles/footer.css">
+  <link rel="stylesheet" href="./src/styles/home.css"> <!-- css exclusivo da home page -->
+  <!-- dados -->
+  <script defer src="./src/scripts/data.js"></script>
+  <!-- scripts de geração de conteudo dinamico -->
+  <script defer src="./src/scripts/templates/header.js"></script>
+  <script defer src="./src/scripts/templates/footer.js"></script>
+  <script defer src="./src/scripts/templates/login-signup-template.js"></script>
+  <script defer src="./src/scripts/templates/profile.js"></script>
+  <!-- scripts gerais de interação -->
+  <script defer src="./src/scripts/login-signup.js"></script>
+</head>
+
+<body data-context="home">
+    <!-- o caminho relativo pro folder de imagens é:
+    "./src/images/nome_da_imagem.png" -->
+    <main>
+      <div class="main__intro">
+        <h1>Scrum</h1>
+        <p>Scrum é um framework ágil, adaptável, rápido, flexível e eficaz que é projetado para oferecer valor ao cliente durante todo o desenvolvimento do projeto. O foco do desenvolvimento é o cliente: absorver o que o cliente necessita e desenvolver soluções e recursos que possam agregar valor. Devido à sua eficácia, o Scrum é amplamente adotado ate mesmo fora do universo da TI!</p>
+      </div>
+      <div class="main__table-of-contents">
+        <h2>Sumário</h2>
+        <ol>
+           <li>1. Introdução ao Scrum</li>
+           <li>2. O que é Scrum </li>
+           <li>3. Pilares do Scrum </li>
+           <li>4. Papeís do Scrum </li>
+           <li>5. Artefatos do Scrum </li>
+           <li>6. Eventos do Scrum </li>
+           <li>7. Definição do Pronto(DOD) </li>
+           <li>8. Vantagens do Scrum </li>
+        </ol>
+      </div>
+      <div class="main__nav">
+        <a href="./src/pages/articles/01.html" class="main__nav__circle" title="Introdução ao Curso Scrum">1</a> 
+        <a href="./src/pages/articles/02.html" class="main__nav__circle" title="O que é Scrum">2</a>
+        <a href="./src/pages/articles/03.html" class="main__nav__circle" title="Pilares do Scrum">3</a>
+        <a href="./src/pages/articles/04.html" class="main__nav__circle" title="Papeis do Scrum">4</a>
+        <a href="./src/pages/articles/05.html" class="main__nav__circle" title="Artefatos do Scrum">5</a>
+        <a href="./src/pages/articles/06.html" class="main__nav__circle" title="Eventos do Scrum">6</a>
+        <a href="./src/pages/articles/07.html" class="main__nav__circle" title="Definição de Pronto">7</a>
+        <a href="./src/pages/articles/08.html" class="main__nav__circle" title=" Vantagens do Scrum">8</a>
+      </div>
+      <div class="main__image">
+        <img src="./src/images/scrum-home.png" />
+      </div>
+    </main>
+
+</body>
+</html>
