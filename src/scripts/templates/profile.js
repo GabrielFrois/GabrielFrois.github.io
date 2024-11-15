@@ -1,8 +1,9 @@
 "use strict";
 
-if (!currentUser) throw new Error(); /* termina o script se não tiver ninguém logado (users não logados não tem perfil) */
+// Verifica se o usuário está logado
+if (!currentUser) throw new Error("Usuário não logado!");
 
-/* função que gera o componente de perfil */
+/* Função que gera o componente de perfil */
 function genProfile() {
     const html = `
     <div class="profile-component hidden">
@@ -18,11 +19,9 @@ function genProfile() {
             <button class="profile__delete">Deletar Conta</button>
         </div>
     </div>
-    `
-
+    `;
     document.querySelector(".overlay").insertAdjacentHTML("afterend", html);
 }
-
 
 /* INIT */
 genProfile();
@@ -30,30 +29,30 @@ genProfile();
 /* VARIÁVEIS */
 const DOM_logoffButton = document.querySelector(".profile__logoff");
 const DOM_profileModal = document.querySelector(".profile-component");
-const DOM_profileName = document.querySelector(".profile__name");
 const DOM_profileMessage = document.querySelector(".profile__message");
-const DOM_profileNumberOfQuizzes = document.querySelector(".profile__message__number-of-quizzes");
 const DOM_profileCertificateButton = document.querySelector(".profile__certificate");
 
-/* pequenos detalhes */
-initProfile(); /* definida abaixo */
+/* Pequenos detalhes */
+initProfile(); /* função que inicializa os detalhes do perfil */
 
 /* EVENT LISTENERS */
-DOM_profileCertificateButton.addEventListener("click", (e) => {
-  if (DOM_profileCertificateButton.classList.contains("profile__certificate--disabled")) return;
-  getCertificate();
+DOM_profileCertificateButton.addEventListener("click", () => {
+    if (DOM_profileCertificateButton.classList.contains("profile__certificate--disabled")) {
+        console.log("Botão desabilitado: O usuário não completou todos os quizzes.");
+        return;
+    }
+    getCertificate();
 });
 
-
-/* funções */
+/* Funções */
 function initProfile() {
     DOM_logoffButton.addEventListener("click", logoff);
+
+    // Gerar o relatório de quizzes, se necessário
     if (numberOfPassedQuizzes !== 0) genReport();
-    if (numberOfPassedQuizzes === 7) unlockCertificateButton();
+    if (numberOfPassedQuizzes === 7) unlockCertificateButton(); // Desbloquear o botão de certificado
 
-
-
-    /* funções auxiliares */
+    /* Funções auxiliares */
     function logoff() {
         localStorage.clear();
         location.reload();
@@ -67,6 +66,7 @@ function initProfile() {
     
         DOM_profileMessage.insertAdjacentHTML("afterend", html); 
         const DOM_profileQuizReport = document.querySelector(".profile__quizReport");
+        
         Object.entries(currentUserObj.passedQuizzes).forEach((arr) => {
             const quizObj = arr[1];
             html = `<li><b>${quizObj.pageTitle}</b> (<span>✅</span>)</li>` 
@@ -77,48 +77,74 @@ function initProfile() {
     function unlockCertificateButton() {
         DOM_profileMessage.textContent = "Parabéns! Você foi aprovado em todas as avaliações do curso e seu certificado já está liberado!";
         DOM_profileMessage.style.textAlign = "center";
-        DOM_profileCertificateButton.classList.remove("profile__certificate--disabled"); 
-
+        DOM_profileCertificateButton.classList.remove("profile__certificate--disabled");
     }
 }
 
 function getCertificate() {
-  /* carrega o jspdf, cria o certificado e armazena no localStorage */  
-  let certificate;
-  const certificateName = `${currentUserObj.name} ${currentUserObj.surname}`;
+    /* Carregar o jspdf e a imagem do template */
+    console.log("Iniciando o processo de geração do certificado...");
+    let certificate;
+    const certificateName = `${currentUserObj.name} ${currentUserObj.surname}`;
 
-  const jspdfScript = document.createElement("script");
-  const templateImage = document.createElement("img");
+    // Carregar os recursos
+    const jspdfScript = document.createElement("script");
+    const templateImage = document.createElement("img");
 
-  loadResourcePromisified(jspdfScript, `${scriptsPath}/external/jspdf.js`)
-  .then(() => {
-    certificate = new jspdf.jsPDF("landscape");
-    return loadResourcePromisified(templateImage, `${imagesPath}certificate-template.jpeg`);
-  })
-  .then(() => {
-    const pageWidth = certificate.internal.pageSize.getWidth();
-    const pageHeight = certificate.internal.pageSize.getHeight();
-    certificate.addImage(templateImage, "JPEG", 0, 0, pageWidth, pageHeight);
-    const textWidth = certificate.getTextWidth(certificateName);
-    const xPos = (pageWidth - textWidth) / 2.54;
-    certificate.setFont("Times", "bolditalic");
-    certificate.setFontSize(40);
-    certificate.setTextColor(136, 189, 188);
-    certificate.text(certificateName, xPos, pageHeight / 2.1);
-    // Adiciona a data no certificado
-    const dataAtual = formatarData();
-    const dataWidth = certificate.getTextWidth(dataAtual);
-    const xPosData = (pageWidth - dataWidth) / 2.54; // Centraliza a data
-    certificate.setFont("Times", "normal");
-    certificate.setFontSize(30);
-    certificate.setTextColor(136, 189, 188);  // Cor da fonte
-    certificate.text(`Data: ${dataAtual}`, xPosData, pageHeight / 1.8);
-    certificate.save("certificado-scrum.pdf");
-  })
+    // Carregar ambos os recursos de forma assíncrona
+    Promise.all([
+        loadResourcePromisified(jspdfScript, `${scriptsPath}/external/jspdf.js`),
+        loadResourcePromisified(templateImage, `${imagesPath}certificate-template.jpeg`)
+    ])
+    .then(() => {
+        console.log("Recursos carregados com sucesso!");
         
-  document.head.appendChild(jspdfScript);
-  document.head.appendChild(templateImage); // adicionando no <head> pra não ficar visível hihi
+        // Criar o PDF
+        certificate = new jspdf.jsPDF("landscape");
+        const pageWidth = certificate.internal.pageSize.getWidth();
+        const pageHeight = certificate.internal.pageSize.getHeight();
+        certificate.addImage(templateImage, "JPEG", 0, 0, pageWidth, pageHeight);
+
+        // Adicionar o nome no certificado
+        const textWidth = certificate.getTextWidth(certificateName);
+        const xPos = (pageWidth - textWidth) / 2.54;
+        certificate.setFont("Times", "bolditalic");
+        certificate.setFontSize(40);
+        certificate.setTextColor(136, 189, 188);
+        certificate.text(certificateName, xPos, pageHeight / 2.1);
+
+        // Adicionar a data no certificado
+        const dataAtual = formatarData();
+        const dataWidth = certificate.getTextWidth(dataAtual);
+        const xPosData = (pageWidth - dataWidth) / 2.54; // Centraliza a data
+        certificate.setFont("Times", "normal");
+        certificate.setFontSize(30);
+        certificate.setTextColor(136, 189, 188);  // Cor da fonte
+        certificate.text(`Data: ${dataAtual}`, xPosData, pageHeight / 1.8);
+
+        // Salva o certificado gerado
+        certificate.save("certificado-scrum.pdf");
+    })
+    .catch((err) => {
+        console.error("Erro ao carregar recursos:", err);
+    });
 }
 
+/* Função para carregar os recursos de forma assíncrona */
+function loadResourcePromisified(element, src) {
+    return new Promise((resolve, reject) => {
+        element.onload = resolve;
+        element.onerror = reject;
+        element.src = src;
+    });
+}
 
+/* Função para formatar a data atual */
+function formatarData() {
+    const data = new Date();
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+}
 
